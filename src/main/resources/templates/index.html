@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>シンプル在庫管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h1 class="mb-4">📦 在庫管理システム</h1>
+
+    <!-- 新規登録フォーム -->
+    <form action="/add" method="post" class="row g-3 mb-4 p-3 bg-light border rounded">
+        <div class="col-md-6">
+            <input type="text" name="name" class="form-control" placeholder="商品名（例：コピー用紙 A4）" required>
+        </div>
+        <div class="col-md-4">
+            <input type="number" name="stock" class="form-control" placeholder="初期在庫数" min="0" required>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">新規登録</button>
+        </div>
+    </form>
+
+    <!-- 在庫一覧テーブル -->
+    <table class="table table-bordered align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>現在庫数</th>
+                <th>ステータス</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${items}">
+                <td th:text="${item.id}"></td>
+                <td th:text="${item.name}"></td>
+                <td th:text="${item.stock} + ' 個'"></td>
+                <td>
+                    <span th:if="${item.stock == 0}" class="badge bg-danger">在庫切れ</span>
+                    <span th:if="${item.stock > 0 and item.stock <= 3}" class="badge bg-warning text-dark">残りわずか（要発注）</span>
+                    <span th:if="${item.stock > 3}" class="badge bg-success">在庫あり</span>
+                </td>
+                <td class="d-flex gap-2">
+                    <form th:action="@{/in/{id}(id=${item.id})}" method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">＋ 入庫</button>
+                    </form>
+                    <form th:action="@{/out/{id}(id=${item.id})}" method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" th:disabled="${item.stock == 0}">ー 出庫</button>
+                    </form>
+                    <form th:action="@{/delete/{id}(id=${item.id})}" method="post">
+                        <button type="submit" class="btn btn-sm btn-danger">削除</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
